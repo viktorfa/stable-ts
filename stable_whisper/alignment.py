@@ -446,8 +446,8 @@ def align(
         return 1 - _mask[s:e].float().mean().nan_to_num()
 
     def is_new_better(w0, m0, o0, w1, m1, o1):
-        speech0 = float(speech_percentage(w0, m0, o0)).round(decimals=1)
-        speech1 = float(speech_percentage(w1, m1, o1)).round(decimals=1)
+        speech0 = round(speech_percentage(w0, m0, o0), 1)
+        speech1 = round(speech_percentage(w1, m1, o1), 1)
         w0p, w1p = w0['probability'], w1['probability']
         return ((w1p**0.75 - w0p**0.75) < 0.35 and speech0 >= speech1) or w0p >= w1p
 
