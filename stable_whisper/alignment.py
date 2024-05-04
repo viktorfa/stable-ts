@@ -437,6 +437,11 @@ def align(
 
         return first_word_src, word_sources[1:]
 
+    def ensure_tensor(x):
+        if not torch.is_tensor(x):
+            x = torch.tensor(x, dtype=torch.float32)  # Ensure it's a float for rounding
+        return x
+
     def speech_percentage(_word: dict, _mask: torch.Tensor, _offset: float):
         if _mask is None:
             return 1
@@ -446,8 +451,12 @@ def align(
         return 1 - _mask[s:e].float().mean().nan_to_num()
 
     def is_new_better(w0, m0, o0, w1, m1, o1):
-        speech0 = round(speech_percentage(w0, m0, o0), 1)
-        speech1 = round(speech_percentage(w1, m1, o1), 1)
+        speech0 = speech_percentage(w0, m0, o0)
+        speech1 = speech_percentage(w1, m1, o1)
+        speech0 = ensure_tensor(speech0)
+        speech1 = ensure_tensor(speech1)
+        speech0 = speech0.round(decimals=1)
+        speech1 = speech1.round(decimals=1)
         w0p, w1p = w0['probability'], w1['probability']
         return ((w1p**0.75 - w0p**0.75) < 0.35 and speech0 >= speech1) or w0p >= w1p
 
